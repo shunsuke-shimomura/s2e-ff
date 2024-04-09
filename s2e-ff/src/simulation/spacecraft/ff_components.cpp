@@ -19,6 +19,8 @@ FfComponents::FfComponents(const Dynamics* dynamics, const Structure* structure,
   double compo_step_sec = glo_env_->GetSimulationTime().GetComponentStepTime_s();
 
   // Component Instantiation
+  kf = new KalmanFilter(clock_gen,*this);
+
   obc_ = new OnBoardComputer(clock_gen);
 
   std::string section_name = "COMPONENT_FILES";
@@ -37,6 +39,10 @@ FfComponents::FfComponents(const Dynamics* dynamics, const Structure* structure,
   const std::string rel_vel_file = sat_file.ReadString(section_name.c_str(), "relative_velocity_sensor_file");
   relative_velocity_sensor_ =
       new RelativeVelocitySensor(InitializeRelativeVelocitySensor(clock_gen, rel_vel_file, compo_step_sec, *rel_info_, *dynamics_, sat_id));
+
+  const std::string rel_acc_file = sat_file.ReadString(section_name.c_str(), "relative_acceleration_sensor_file");
+  relative_acceleration_sensor_ = 
+      new RelativeAccelerationSensor(InitializeRelativeAccelerationSensor(clock_gen, rel_vel_file, compo_step_sec, *rel_info_, *dynamics_, sat_id));
 
   const std::string ldm_file = sat_file.ReadString(section_name.c_str(), "Laser_distance_meter_file");
   laser_distance_meter_ = new LaserDistanceMeter(1, clock_gen, ldm_file, *dynamics_, inter_spacecraft_communication_);
@@ -100,8 +106,10 @@ void FfComponents::LogSetup(Logger& logger) {
   logger.AddLogList(relative_position_sensor_);
   logger.AddLogList(relative_attitude_sensor_);
   logger.AddLogList(relative_velocity_sensor_);
+  logger.AddLogList(relative_acceleration_sensor_);
   logger.AddLogList(force_generator_);
   logger.AddLogList(torque_generator_);
   logger.AddLogList(laser_distance_meter_);
   logger.AddLogList(qpd_positioning_sensor_);
+  logger.AddLogList(kf);
 }

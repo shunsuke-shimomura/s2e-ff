@@ -23,7 +23,11 @@
 #include "../../components/aocs/relative_distance_sensor.hpp"
 #include "../../components/aocs/relative_position_sensor.hpp"
 #include "../../components/aocs/relative_velocity_sensor.hpp"
+#include "../../components/aocs/relative_acceleration_sensor.hpp"
 #include "../../components/ideal/initialize_relative_attitude_controller.hpp"
+#include "../../components/aocs/kalman_filter.hpp"
+
+class KalmanFilter;
 
 /**
  * @class FfComponents
@@ -44,6 +48,10 @@ class FfComponents : public InstalledComponents {
    */
   ~FfComponents();
 
+  inline RelativePositionSensor &GetRelativePositionSensor() {return *relative_position_sensor_;}
+  inline RelativeVelocitySensor &GetRelativeVelocitySensor() {return *relative_velocity_sensor_;}
+  inline RelativeDistanceSensor &GetRelativeDistanceSensor() {return *relative_distance_sensor_;}
+
   // Override functions for InstalledComponents
   /**
    * @fn GenerateForce_b_N
@@ -63,6 +71,7 @@ class FfComponents : public InstalledComponents {
 
  private:
   // Components
+  KalmanFilter* kf;
   // CDH
   OnBoardComputer* obc_;  //!< On board computer
   // Sensors
@@ -70,6 +79,7 @@ class FfComponents : public InstalledComponents {
   RelativePositionSensor* relative_position_sensor_;  //!< Example of Relative position sensor
   RelativeAttitudeSensor* relative_attitude_sensor_;  //!< Example of Relative attitude sensor
   RelativeVelocitySensor* relative_velocity_sensor_;  //!< Example of Relative velocity sensor
+  RelativeAccelerationSensor* relative_acceleration_sensor_;  //!< Example of Relative velocity sensor
   LaserDistanceMeter* laser_distance_meter_;
   QpdPositioningSensor* qpd_positioning_sensor_;
   // Actuators
