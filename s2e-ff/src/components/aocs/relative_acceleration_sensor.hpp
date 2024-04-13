@@ -8,7 +8,7 @@
 
 class RelativeAccelerationSensor : public Component, public Sensor<3>, public ILoggable {
     public:
-    RelativeAccelerationSensor(const int prescaler, ClockGenerator* clock_gen, Sensor& sensor_base, const int target_sat_id, const int reference_sat_id, const RelativeInformation& rel_info, const Dynamics& dynamics);
+    RelativeAccelerationSensor(const int prescaler, ClockGenerator* clock_gen, Sensor& sensor_base, const int target_sat_id, const int reference_sat_id, const RelativeInformation& rel_info, const Dynamics& dynamics, const double compo_step_time_s);
 
     ~RelativeAccelerationSensor();
 
@@ -18,12 +18,14 @@ class RelativeAccelerationSensor : public Component, public Sensor<3>, public IL
 
     virtual std::string GetLogValue() const;
 
-    inline libra::Vector<3> GetMeasuredTargetAcceleration_rtn_m_s() const {return measured_target_acceleration_rtn_m_s2_;}
+    inline libra::Vector<3> GetMeasuredTargetAcceleration_rtn_m_s2() const {return measured_target_acceleration_rtn_m_s2_;}
 
     protected:
     int target_sat_id_;
 
     const int reference_sat_id_;
+
+    const double compo_step_time_s_;
 
     libra::Vector<3> measured_target_acceleration_rtn_m_s2_{0.0};
     libra::Vector<3> measured_target_acceleration_i_m_s2_{0.0};

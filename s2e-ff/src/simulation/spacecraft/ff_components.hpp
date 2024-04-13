@@ -51,6 +51,7 @@ class FfComponents : public InstalledComponents {
   inline RelativePositionSensor &GetRelativePositionSensor() {return *relative_position_sensor_;}
   inline RelativeVelocitySensor &GetRelativeVelocitySensor() {return *relative_velocity_sensor_;}
   inline RelativeDistanceSensor &GetRelativeDistanceSensor() {return *relative_distance_sensor_;}
+  inline RelativeAccelerationSensor &GetRelativeAccelerationSensor() {return *relative_acceleration_sensor_;}
 
   // Override functions for InstalledComponents
   /**

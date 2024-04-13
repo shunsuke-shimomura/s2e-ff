@@ -19,7 +19,6 @@ FfComponents::FfComponents(const Dynamics* dynamics, const Structure* structure,
   double compo_step_sec = glo_env_->GetSimulationTime().GetComponentStepTime_s();
 
   // Component Instantiation
-  kf = new KalmanFilter(clock_gen,*this);
 
   obc_ = new OnBoardComputer(clock_gen);
 
@@ -42,7 +41,7 @@ FfComponents::FfComponents(const Dynamics* dynamics, const Structure* structure,
 
   const std::string rel_acc_file = sat_file.ReadString(section_name.c_str(), "relative_acceleration_sensor_file");
   relative_acceleration_sensor_ = 
-      new RelativeAccelerationSensor(InitializeRelativeAccelerationSensor(clock_gen, rel_vel_file, compo_step_sec, *rel_info_, *dynamics_, sat_id));
+      new RelativeAccelerationSensor(InitializeRelativeAccelerationSensor(clock_gen, rel_acc_file, compo_step_sec, *rel_info_, *dynamics_, sat_id));
 
   const std::string ldm_file = sat_file.ReadString(section_name.c_str(), "Laser_distance_meter_file");
   laser_distance_meter_ = new LaserDistanceMeter(1, clock_gen, ldm_file, *dynamics_, inter_spacecraft_communication_);
@@ -60,6 +59,10 @@ FfComponents::FfComponents(const Dynamics* dynamics, const Structure* structure,
   const std::string relative_attitude_controller_file = sat_file.ReadString(section_name.c_str(), "relative_attitude_controller_file");
   relative_attitude_controller_ = new RelativeAttitudeController(InitializeRelativeAttitudeController(
       clock_gen, relative_attitude_controller_file, *rel_info_, local_env_->GetCelestialInformation(), *dynamics_, sat_id));
+
+  const std::string kalman_filter_file = sat_file.ReadString(section_name.c_str(), "kalman_filter_file");
+  kf = new KalmanFilter(InitializeKalmanFilter(clock_gen, kalman_filter_file, *this, compo_step_sec));
+
 
   // Debug for actuator output
   libra::Vector<3> force_N;

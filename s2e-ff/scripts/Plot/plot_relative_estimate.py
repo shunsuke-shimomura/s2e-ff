@@ -53,6 +53,7 @@ t = read_scalar_from_csv(read_file_name, "elapsed_time[s]")
 d = read_scalar_from_csv(read_file_name, 'satellite1_position_from_satellite0_rtn_z[m]')
 print(t)
 # Add satellites if you need
+vel = read_3d_vector_from_csv(read_file_name, 'satellite1_velocity_from_satellite0_rtn', 'm/s')
 pos = read_3d_vector_from_csv(read_file_name, 'satellite1_position_from_satellite0_rtn', 'm')
 estimated = read_3d_vector_from_csv(read_file_name, 'kalman_filter_estimated_position_rtn', "m")
 # Edit data if you need
@@ -86,8 +87,23 @@ ax.set_ylabel("distance [m]")
 #ax.set_ylim(-100, 100)
 #ax.set_zlim(-100, 100)
 
-ax.plot(t[0][3:],estimated[2][3:])
-ax.plot(t[0][3:],pos[2][3:])
+ax.plot(t[0],vel[1],marker="o")
+
+ax.legend()
+
+fig = plt.figure(figsize=(5,5))
+ax = fig.add_subplot(111)
+ax.set_title("distance")
+ax.set_xlabel("time [s]")
+ax.set_ylabel("distance [m]")
+
+# Add plot settings if you need
+#ax.set_xlim(-100, 100)
+#ax.set_ylim(-100, 100)
+#ax.set_zlim(-100, 100)
+
+ax.plot(t[0][3:],estimated[0][3:])
+ax.plot(t[0][3:],pos[0][3:])
 
 ax.legend()
 
