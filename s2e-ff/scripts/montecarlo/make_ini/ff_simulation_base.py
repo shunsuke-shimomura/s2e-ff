@@ -1,4 +1,10 @@
-[TIME]
+import pathlib
+import numpy as np
+
+def echo():
+    with open(pathlib.Path(__file__).parent.parent.parent.parent/"data/initialize_files/ff_simulation_base.ini", 'w') as f:
+        print(
+"""[TIME]
 // Simulation start time [UTC]
 simulation_start_time_utc = 2024/01/01 12:00:00.0
 
@@ -84,7 +90,7 @@ logging = DISABLE
 
 [RANDOMIZE]
 // Seed of randam. When this value is 0, the seed will be varied by time.
-rand_seed = 30961
+rand_seed = {0}
 
 [SIMULATION_SETTINGS]
 // Whether the ini files are saved or not
@@ -98,4 +104,8 @@ number_of_simulated_spacecraft = 2
 spacecraft_file(0)   = ../../data/initialize_files/ff_satellite.ini
 spacecraft_file(1)   = ../../data/initialize_files/ff_satellite_2.ini
 log_file_save_directory = ../../data/logs/
-
+"""
+        .format(
+            np.random.randint(0, 63355, dtype=np.uint32)
+        ),
+        file=f)

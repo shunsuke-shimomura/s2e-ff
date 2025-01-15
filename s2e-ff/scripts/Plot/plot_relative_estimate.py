@@ -55,7 +55,18 @@ print(t)
 # Add satellites if you need
 vel = read_3d_vector_from_csv(read_file_name, 'satellite1_velocity_from_satellite0_rtn', 'm/s')
 pos = read_3d_vector_from_csv(read_file_name, 'satellite1_position_from_satellite0_rtn', 'm')
-estimated = read_3d_vector_from_csv(read_file_name, 'kalman_filter_estimated_position_rtn', "m")
+estimated_pos = np.array([
+  read_scalar_from_csv(read_file_name, 'kalman_filter_estimated_state_rtn(0)[m]')[0],
+  read_scalar_from_csv(read_file_name, 'kalman_filter_estimated_state_rtn(1)[m]')[0],
+  read_scalar_from_csv(read_file_name, 'kalman_filter_estimated_state_rtn(2)[m]')[0]
+  ],
+)
+estimated_vel = np.array([
+  read_scalar_from_csv(read_file_name, 'kalman_filter_estimated_state_rtn(3)[m]')[0],
+  read_scalar_from_csv(read_file_name, 'kalman_filter_estimated_state_rtn(4)[m]')[0],
+  read_scalar_from_csv(read_file_name, 'kalman_filter_estimated_state_rtn(5)[m]')[0]
+  ],
+)
 # Edit data if you need
 
 #
@@ -72,20 +83,22 @@ ax.set_ylabel("distance [m]")
 #ax.set_ylim(-100, 100)
 #ax.set_zlim(-100, 100)
 
-ax.plot(t,d,marker="o")
+ax.plot(t[0],d[0],marker="o")
 
 ax.legend()
 
 fig = plt.figure(figsize=(5,5))
 ax = fig.add_subplot(111)
-ax.set_title("distance")
+ax.set_title("velocity")
 ax.set_xlabel("time [s]")
-ax.set_ylabel("distance [m]")
+ax.set_ylabel("velocity [m/s]")
 
 # Add plot settings if you need
 #ax.set_xlim(-100, 100)
 #ax.set_ylim(-100, 100)
 #ax.set_zlim(-100, 100)
+
+print(vel)
 
 ax.plot(t[0],vel[1],marker="o")
 
@@ -93,32 +106,34 @@ ax.legend()
 
 fig = plt.figure(figsize=(5,5))
 ax = fig.add_subplot(111)
-ax.set_title("distance")
+ax.set_title("estimated_pos")
 ax.set_xlabel("time [s]")
-ax.set_ylabel("distance [m]")
+ax.set_ylabel("estimated pos [m]")
 
 # Add plot settings if you need
 #ax.set_xlim(-100, 100)
 #ax.set_ylim(-100, 100)
 #ax.set_zlim(-100, 100)
+print(estimated_pos)
 
-ax.plot(t[0][3:],estimated[0][3:])
-ax.plot(t[0][3:],pos[0][3:])
+ax.plot(t[0][10:],estimated_pos[2][10:])
+ax.plot(t[0][10:],pos[2][10:])
 
 ax.legend()
 
-fig = plt.figure(figsize=(5,5))
+fig = plt.figure(figsize=(7,5))
 ax = fig.add_subplot(111)
-ax.set_title("distance")
+ax.set_title("estimated_pos")
 ax.set_xlabel("time [s]")
-ax.set_ylabel("distance [m]")
+ax.set_ylabel("estimated pos [m]")
 
 # Add plot settings if you need
 #ax.set_xlim(-100, 100)
 #ax.set_ylim(-100, 100)
 #ax.set_zlim(-100, 100)
+print(estimated_pos)
 
-ax.plot(t[0][3:],pos[2][3:]-estimated[2][3:])
+ax.plot(t[0][10:],pos[2][10:]-estimated_pos[2][10:])
 
 ax.legend()
 

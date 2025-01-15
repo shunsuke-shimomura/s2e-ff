@@ -46,16 +46,18 @@ void KalmanFilter::MainRoutine(const int time_count) {
     const double relative_distance = components_.GetRelativeDistanceSensor().GetMeasuredDistance_m();
 
     this->estimated_state = this->state_transition * this->estimated_state + this->control_input * relative_acceleration;
-    this->covariance = this->state_transition * this->covariance * this->state_transition.Transpose() + this->control_input * (this->acc_std_ * libra::MakeIdentityMatrix<3>()) * this->control_input.Transpose();
+    this->covariance = this->state_transition * this->covariance * this->state_transition.Transpose() + this->control_input * (this->acc_std_ * this->acc_std_ * libra::MakeIdentityMatrix<3>()) * this->control_input.Transpose();
 
     if (time_count % this->pos_step_ == 0) {
         try
         {
-            auto gain = covariance * obs_position.Transpose() * libra::CalcInverseMatrix(this->pos_std_ * libra::MakeIdentityMatrix<3>() + obs_position * covariance * obs_position.Transpose());
+            auto gain = covariance * obs_position.Transpose() * libra::CalcInverseMatrix(this->pos_std_ * this->pos_std_ * libra::MakeIdentityMatrix<3>() + obs_position * covariance * obs_position.Transpose());
             auto ratio = libra::MakeIdentityMatrix<6>() - gain * obs_position;
-            this->covariance = ratio * covariance * ratio.Transpose() + gain * (this->pos_std_ * libra::MakeIdentityMatrix<3>()) * gain.Transpose();
+            this->covariance = ratio * covariance * ratio.Transpose() + gain * (this->pos_std_ * this->pos_std_ * libra::MakeIdentityMatrix<3>()) * gain.Transpose();
 
-            this->estimated_state += gain * (relative_position - obs_position * estimated_state);
+            auto tmp = gain * (relative_position - obs_position * estimated_state);
+            auto est = this->estimated_state + gain * (relative_position - obs_position * estimated_state);
+            this->estimated_state = est;
         }
         catch(const std::invalid_argument& e)
         {
@@ -70,9 +72,9 @@ void KalmanFilter::MainRoutine(const int time_count) {
     if (time_count % vel_step_ == 0) {
         try
         {
-            auto gain = covariance * obs_velocity.Transpose() * libra::CalcInverseMatrix(libra::MakeIdentityMatrix<3>() + obs_velocity * covariance * obs_velocity.Transpose());
+            auto gain = covariance * obs_velocity.Transpose() * libra::CalcInverseMatrix(this->vel_std_ * this->vel_std_ * libra::MakeIdentityMatrix<3>() + obs_velocity * covariance * obs_velocity.Transpose());
             auto ratio = libra::MakeIdentityMatrix<6>() - gain * obs_velocity;
-            this->covariance = ratio * covariance * ratio.Transpose() + gain * (this->vel_std_ * libra::MakeIdentityMatrix<3>()) * gain.Transpose();
+            this->covariance = ratio * covariance * ratio.Transpose() + gain * (this->vel_std_ * this->vel_std_ * libra::MakeIdentityMatrix<3>()) * gain.Transpose();
 
             this->estimated_state += gain * (libra::Vector<3>(relative_velocity) - obs_velocity * estimated_state);
         }
@@ -87,15 +89,15 @@ void KalmanFilter::MainRoutine(const int time_count) {
         }       
     }
 
-    if (time_count % dist_step_ == 0) {
+    if (time_count % dist_step_ == 0 && false) {
         try
         {
             obs_distance[0][0] = estimated_state[0] / estimated_state.CalcNorm();
             obs_distance[0][1] = estimated_state[1] / estimated_state.CalcNorm();
             obs_distance[0][2] = estimated_state[2] / estimated_state.CalcNorm();
-            auto gain = covariance * obs_distance.Transpose() * libra::CalcInverseMatrix(libra::MakeIdentityMatrix<1>() + obs_distance * covariance * obs_distance.Transpose());
+            auto gain = covariance * obs_distance.Transpose() * libra::CalcInverseMatrix(this->vel_std_ * this->vel_std_ * libra::MakeIdentityMatrix<1>() + obs_distance * covariance * obs_distance.Transpose());
             auto ratio = libra::MakeIdentityMatrix<6>() - gain * obs_distance;
-            this->covariance = ratio * covariance * ratio.Transpose() + gain * (this->dist_std_ * libra::MakeIdentityMatrix<1>()) * gain.Transpose();
+            this->covariance = ratio * covariance * ratio.Transpose() + gain * (this->dist_std_ * this->dist_std_ * libra::MakeIdentityMatrix<1>()) * gain.Transpose();
 
             this->estimated_state += gain * (libra::Vector<1>(relative_distance) - obs_distance * estimated_state);
         }
@@ -121,7 +123,7 @@ std::string KalmanFilter::GetLogHeader() const {
 
 std::string KalmanFilter::GetLogValue() const {
   std::string str_tmp = "";
-  libra::Vector<3> cov_vector;
+  libra::Vector<6> cov_vector;
 
   cov_vector[0] = covariance[0][0];
   cov_vector[1] = covariance[1][1];
